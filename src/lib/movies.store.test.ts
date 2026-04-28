@@ -18,6 +18,7 @@ vi.mock('./api.service', () => ({
     updateMovie: vi.fn(),
     deleteMovie: vi.fn(),
     toggleFavorite: vi.fn(),
+    rateMovie: vi.fn(),
   }
 }));
 
@@ -220,6 +221,40 @@ describe('Movies Store (Svelte 5 Runes)', () => {
       expect(ok).toBe(false);
       expect(moviesStore.error).toBe('Forbidden');
       expect(moviesStore.mutating).toBe(false);
+    });
+  });
+
+  // ─── rateMovie ────────────────────────────────────────────────
+  describe('rateMovie()', () => {
+    it('debería actualizar el rating de una película', async () => {
+      // ARRANGE
+      vi.mocked(api.getMovies).mockResolvedValue([...mockMovies]);
+      await moviesStore.loadMovies();
+
+      const movieToRate = { ...mockMovies[0], rating: 4 };
+      vi.mocked(api.rateMovie).mockResolvedValue(movieToRate);
+
+      // ACT
+      const ok = await moviesStore.rateMovie(mockMovies[0], 4);
+
+      // ASSERT
+      expect(ok).toBe(true);
+      expect(api.rateMovie).toHaveBeenCalledWith(mockMovies[0].id, 4);
+      expect(moviesStore.movies[0].rating).toBe(4);
+    });
+
+    it('debería devolver false y error si el rating no es válido (ej. 6)', async () => {
+      // ARRANGE
+      vi.mocked(api.getMovies).mockResolvedValue([...mockMovies]);
+      await moviesStore.loadMovies();
+
+      // ACT
+      const ok = await moviesStore.rateMovie(mockMovies[0], 6);
+
+      // ASSERT
+      expect(ok).toBe(false);
+      expect(moviesStore.error).toBe('La calificación debe estar entre 0 y 5');
+      expect(api.rateMovie).not.toHaveBeenCalled();
     });
   });
 });

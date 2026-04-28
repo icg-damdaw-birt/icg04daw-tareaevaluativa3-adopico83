@@ -124,6 +124,7 @@
               ondelete={handleDelete} 
               onedit={handleEdit} 
               ontogglefavorite={(id) => moviesStore.toggleFavorite(id)}
+              onrate={(movie, rating) => moviesStore.rateMovie(movie, rating)}
             />
           {/each}
         </div>

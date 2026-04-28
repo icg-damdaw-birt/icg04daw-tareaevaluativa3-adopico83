@@ -99,6 +99,37 @@ export const moviesStore = {
     }
   },
 
+  // Calificar película
+  async rateMovie(movie: Movie, rating: number): Promise<boolean> {
+    if (rating < 0 || rating > 5) {
+      error = 'La calificación debe estar entre 0 y 5';
+      return false;
+    }
+
+    mutating = true;
+    error = null;
+
+    // Guardar el rating previo para rollback
+    const previousRating = movie.rating;
+
+    // Optimistic update
+    movies = movies.map(m => m.id === movie.id ? { ...m, rating } : m);
+
+    try {
+      const updatedMovie = await api.rateMovie(movie.id, rating);
+      // Actualizar con la respuesta real del servidor
+      movies = movies.map(m => m.id === movie.id ? updatedMovie : m);
+      return true;
+    } catch (err) {
+      // Rollback
+      movies = movies.map(m => m.id === movie.id ? { ...m, rating: previousRating } : m);
+      error = err instanceof Error ? err.message : 'Error al calificar película';
+      return false;
+    } finally {
+      mutating = false;
+    }
+  },
+
   // Limpiar estado completo
   reset() {
     movies = [];

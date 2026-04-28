@@ -17,7 +17,8 @@ export interface Movie {
   createdAt?: string | null;
   updatedAt?: string | null;
   isFavorite?: boolean;
-  // TODO (UD4 - Ejercicio): añadir rating?: number
+  // 0 significa "sin calificar", 1-5 son las puntuaciones posibles
+  rating?: number;
 }
 
 export interface MoviePayload {

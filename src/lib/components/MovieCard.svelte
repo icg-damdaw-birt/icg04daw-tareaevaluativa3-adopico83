@@ -7,13 +7,15 @@
     showActions = true,
     ondelete,
     onedit,
-    ontogglefavorite
+    ontogglefavorite,
+    onrate
   }: {
     movie: Movie;
     showActions?: boolean;
     ondelete?: (id: string) => void;
     onedit?: (movie: Movie) => void;
     ontogglefavorite?: (id: string) => void;
+    onrate?: (movie: Movie, rating: number) => void;
   } = $props();
 
   // Handlers: ejecutan callbacks del padre directamente
@@ -27,6 +29,10 @@
 
   function handleToggleFavorite() {
     ontogglefavorite?.(movie.id);
+  }
+
+  function handleRate(rating: number) {
+    onrate?.(movie, rating);
   }
 </script>
 
@@ -64,6 +70,21 @@
       {#if movie.year}
         <span>Año: {movie.year}</span>
       {/if}
+    </div>
+
+    <!-- Rating de estrellas -->
+    <div class="flex items-center gap-1 text-xl text-yellow-500 mt-2">
+      {#each [1, 2, 3, 4, 5] as star}
+        <button
+          type="button"
+          class="hover:scale-110 transition-transform"
+          aria-label={`Calificar con ${star} estrellas`}
+          title={`Calificar con ${star} estrellas`}
+          onclick={() => handleRate(star)}
+        >
+          {star <= (movie.rating ?? 0) ? '⭐' : '☆'}
+        </button>
+      {/each}
     </div>
 
     {#if showActions}
